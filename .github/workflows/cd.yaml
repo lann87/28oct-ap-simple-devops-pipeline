@@ -1,0 +1,35 @@
+name: Terraform CD  # Workflow name
+
+on:
+  push:
+    branches:
+      - main      # Trigger CD on push to the main branch
+
+jobs:
+  terraform-cd:    # Job name
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the job
+
+    steps:
+      ## Step 1: Checkout the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      ## Step 2: Configure AWS credentials for deployment
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}         # AWS access key stored as secret
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS secret key stored as secret
+          aws-region: us-east-1                                       # Set AWS region (replace if needed)
+
+      ## Step 3: Set up Terraform
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      ## Step 4: Initialize Terraform
+      - name: Terraform init
+        run: terraform init
+
+      ## Step 5: Apply the changes
+      - name: Terraform Apply
+        run: terraform apply --auto-approve   # Apply changes with auto-approval
