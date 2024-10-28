@@ -31,10 +31,5 @@ jobs:
 
       ## Step 5: Run Terraform Plan
       # Generates an execution plan showing what changes Terraform will apply
-      - name: Terraform Plan
-        run: terraform plan
-
-      ## Step 6: Apply the changes automatically
-      # terraform apply will deploy changes as defined in the configuration files
-      - name: Terraform Apply
-        run: terraform apply --auto-approve   # --auto-approve flag to skip manual approval prompt
+      - name: Terraform Format
+        run: terraform fmt -check
