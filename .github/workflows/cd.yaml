@@ -8,6 +8,11 @@ on:
 jobs:
   terraform-cd:    # Job name
     runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the job
+    outputs:
+        status: ${{ job.status }}
+    defaults:
+        run:
+            working-directory: terraform
 
     steps:
       ## Step 1: Checkout the code from the repository
