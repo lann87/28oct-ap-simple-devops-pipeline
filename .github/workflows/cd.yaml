@@ -1,4 +1,4 @@
-name: Terraform CD  # Workflow name
+name: Terraform CD
 
 on:
   push:
@@ -6,22 +6,22 @@ on:
       - main      # Trigger CD on push to the main branch
 
 jobs:
-  terraform-cd:    # Job name
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the job
+  terraform-cd:
+    runs-on: ubuntu-latest
     outputs:
         status: ${{ job.status }}
     defaults:
         run:
-            working-directory: terraform
+            working-directory: terraform # Telling GH Actions where to look for the TF files
 
     steps:
       ## Step 1: Checkout the code from the repository
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       ## Step 2: Configure AWS credentials for deployment
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}         # AWS access key stored as secret
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS secret key stored as secret
@@ -29,7 +29,7 @@ jobs:
 
       ## Step 3: Set up Terraform
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
 
       ## Step 4: Initialize Terraform
       - name: Terraform init

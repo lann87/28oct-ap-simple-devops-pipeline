@@ -9,18 +9,11 @@
 
 ## Simple DevOps Pipeline Setup Guide
 
-### 1. Repository Setup  
+This project demonstrates setting up a DevOps pipeline that automates AWS S3 bucket creation using Terraform, integrated with CI/CD workflows managed by GitHub Actions.
 
-    Create new GitHub repository "my-simple-devops-pipeline"  
-    Set up branch protection rules:  
+### 1. Terraform Structure  
 
-    Go to Settings → Branches → Add rule  
-    Branch name pattern: main (or develop)  
-    Enable "Require a pull request before merging"  
-    Disable "Require approvals"  
-    Block direct pushes to main/develop  
-
-### 2. Terraform Structure  
+Organized files for AWS S3 bucket setup and provider configurations, with directories for CI/CD workflows.  
 
 ```sh
 .
@@ -64,19 +57,29 @@ provider "aws" {
 }
 ```
 
-### 3. GitHub Actions Workflows  
+### 2. GitHub Actions Workflows  
 
+CI pipeline checks code format and initializes Terraform; CD pipeline deploys infrastructure.  
+
+**Workflows**
+![Alt Text](https://github.com/lann87/28oct-ap-simple-devops-pipeline/blob/main/resources/as3.9-ghawf-cicd.png)
+
+**CI**
+![Alt Text](https://github.com/lann87/28oct-ap-simple-devops-pipeline/blob/main/resources/as3.9-ci.png)
+
+**CD**
+![Alt Text](https://github.com/lann87/28oct-ap-simple-devops-pipeline/blob/main/resources/as3.9-cd.png)
 **ci.yaml**  
 
 ```yaml
-name: Terraform CI  # Workflow name
+name: Terraform CI
 
 on: 
   push:             # Trigger this workflow on any push event to any branch
 
 jobs:
-  terraform-ci:     # Job name
-    runs-on: ubuntu-latest    # Use the latest Ubuntu runner for the job
+  terraform-ci:
+    runs-on: ubuntu-latest
     outputs:
         status: ${{ job.status }}
     defaults:
@@ -90,7 +93,7 @@ jobs:
 
       ## Step 2: Configure AWS credentials for Terraform to access AWS resources
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}         # AWS access key stored as secret
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS secret key stored as secret
@@ -98,23 +101,24 @@ jobs:
 
       ## Step 3: Set up Terraform in the environment
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
 
       ## Step 4: Initialize Terraform
       # This will download and configure any required providers and modules
       - name: Terraform init
         run: terraform init
 
-      ## Step 5: Run Terraform Plan
-      # Generates an execution plan showing what changes Terraform will apply
+      ## Step 5: Run Terraform fmt
+      # Check Terraform code formatting
       - name: Terraform Format
         run: terraform fmt -check
+
 ```
 
-**cd.yaml**
+**cd.yaml**  
 
 ```yaml
-name: Terraform CD  # Workflow name
+name: Terraform CD
 
 on:
   push:
@@ -122,8 +126,8 @@ on:
       - main      # Trigger CD on push to the main branch
 
 jobs:
-  terraform-cd:    # Job name
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the job
+  terraform-cd:
+    runs-on: ubuntu-latest
     outputs:
         status: ${{ job.status }}
     defaults:
@@ -133,11 +137,11 @@ jobs:
     steps:
       ## Step 1: Checkout the code from the repository
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       ## Step 2: Configure AWS credentials for deployment
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}         # AWS access key stored as secret
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS secret key stored as secret
@@ -145,7 +149,7 @@ jobs:
 
       ## Step 3: Set up Terraform
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
 
       ## Step 4: Initialize Terraform
       - name: Terraform init
@@ -154,20 +158,12 @@ jobs:
       ## Step 5: Apply the changes
       - name: Terraform Apply
         run: terraform apply --auto-approve   # Apply changes with auto-approval
+
 ```
 
-### GH Actions CI/CD Pipeline
+### 3. AWS S3 Deployed via CI/CD Pipeline
 
-**Workflows**
-![Alt Text](https://github.com/lann87/28oct-ap-simple-devops-pipeline/blob/main/resources/as3.9-ghawf-cicd.png)
-
-**CI**
-![Alt Text](https://github.com/lann87/28oct-ap-simple-devops-pipeline/blob/main/resources/as3.9-ci.png)
-
-**CD**
-![Alt Text](https://github.com/lann87/28oct-ap-simple-devops-pipeline/blob/main/resources/as3.9-cd.png)
-
-### AWS S3 Deployed via CI/CD Pipeline
+A streamlined DevOps pipeline combining Terraform for infrastructure as code and GitHub Actions for automated deployments.  
 
 **S3**
 ![Alt Text](https://github.com/lann87/28oct-ap-simple-devops-pipeline/blob/main/resources/as3.9-s3.png)
